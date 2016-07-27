@@ -54,7 +54,10 @@ public class DirectiveFinder {
 	}
 
 	public boolean containsComment(String currentLine) {
-		Matcher commentMatcher = commentPattern.matcher(currentLine);
-		return (commentMatcher.group("Comment1") != null);
+		return (currentLine.contains("//"));
+	}
+
+	public boolean containsCastle(String currentLine) {
+		return (currentLine.contains(" O-O-O ") || currentLine.contains(" O-O "));
 	}
 }
