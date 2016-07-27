@@ -15,16 +15,18 @@ public class Translator {
 	boolean movementBegun = false;
 	BufferedReader file = null;
 	BufferedWriter results = null;
-	Pattern placementPattern;
+	
 
 	public Translator(String fileName) {
 		initializeReader(fileName);
 		initializeWriter();
-		initializePatterns();
-	}
-	public void translate(){
 		
 	}
+
+	public void translate() {
+
+	}
+
 	private void initializeReader(String fileName) {
 		FileInputStream inputStream;
 		try {
@@ -45,11 +47,9 @@ public class Translator {
 			e.printStackTrace();
 		}
 	}
-	private void initializePatterns(){
-		String p = "\\s*[KkRrNnQqBbPp][LlDd][A-Ha-h][1-8]\\s*";
-		Pattern placementPattern = Pattern.compile(p);
-	}
-	private String getCurrentLine(){
+
+
+	private String getCurrentLine() {
 		String currentLine = null;
 		try {
 			currentLine = file.readLine();
@@ -58,9 +58,5 @@ public class Translator {
 		}
 		return currentLine;
 	}
-	private boolean isPlacement(String currentLine){
-		//NOT COMPLETED
-		Matcher placementMatcher =  placementPattern.matcher(currentLine);
-		return false;
-	}
+
 }
