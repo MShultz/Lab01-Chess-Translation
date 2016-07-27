@@ -14,9 +14,9 @@ public class DirectiveFinder {
 	private void initializePatterns() {
 		String placement = "[^KRNQBP]*(?<Pattern1>[KRNQBP][LlDd][a-h][1-8])\\s*(?<Pattern2>[KRNQBP][LlDd][a-h][1-8])";
 		placementPattern = Pattern.compile(placement);
-		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][KRNQBP]?[a-h][1-8]#?\\+?(O-O)?(O-O-O)?\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][KRNQBP]?[a-h][1-8]#?\\+?(O-O)?(O-O-O)?))";
+		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?))";
 		movementPattern = Pattern.compile(movement);
-		String comment = "(/\\*([^*]|[\r\n]|(\\*+([^*/]|[\r\n])))*\\*+/)|(//.*)";
+		String comment = "[^/]*(?<Comment1>//.*)*";
 		commentPattern = Pattern.compile(comment);
 	}
 
@@ -55,6 +55,6 @@ public class DirectiveFinder {
 
 	public boolean containsComment(String currentLine) {
 		Matcher commentMatcher = commentPattern.matcher(currentLine);
-		return commentMatcher.find();
+		return (commentMatcher.group("Comment1") != null);
 	}
 }
