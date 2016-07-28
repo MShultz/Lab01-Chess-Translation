@@ -3,7 +3,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,6 +41,23 @@ public class Translator {
 					} else if (finder.isMovement(currentLine)) {
 						processMovement(currentLine);
 					} else if (finder.containsCastle(currentLine)) {
+						ArrayList<String> lineAction = finder.getLineAction(currentLine);
+						if(finder.containsSingleMovement(currentLine)){	
+							if(lineAction.size() == 2){
+								if(finder.containsCastle(lineAction.get(0))){
+									writeToFile(format.formatCastle(lineAction.get(0), true));
+									if(finder.containsCastle(lineAction.get(1))){
+										writeToFile(format.formatCastle(lineAction.get(1), false));
+									}else{
+										writeToFile(format.formatMovement(lineAction.get(1), false));
+									}
+								}
+								
+							}
+						}else{
+							writeToFile(format.formatCastle(lineAction.get(0), true));
+							writeToFile(format.formatCastle(lineAction.get(1), false));
+						}
 						
 					} else {
 						writeToFile("Warning: Skipping line [" + currentLine + "] Invalid input.");
@@ -97,7 +113,7 @@ public class Translator {
 			writeToFile("Warning: Skipping [" + currentLine + "]. Movement has begun.");
 		} else {
 			String placement = finder.getPlacementDirective(currentLine);
-			String placement1 = "Process: Adding [" + placement + "] " + format.formatPlacement(placement);
+			String placement1 = "Placement: Adding [" + placement + "] " + format.formatPlacement(placement);
 			writeToFile(placement1);
 		}
 	}

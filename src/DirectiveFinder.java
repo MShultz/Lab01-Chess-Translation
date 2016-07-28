@@ -6,6 +6,10 @@ public class DirectiveFinder {
 	Pattern placementPattern;
 	Pattern commentPattern;
 	Pattern movementPattern;
+	Pattern singlePattern;
+	Pattern singleContainingPattern;
+	Pattern castle;
+	Pattern twoCastlesFound;
 
 	public DirectiveFinder() {
 		initializePatterns();
@@ -16,6 +20,14 @@ public class DirectiveFinder {
 		placementPattern = Pattern.compile(placement);
 		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)";
 		movementPattern = Pattern.compile(movement);
+		String singleMovement = "\\s*(?<Castle1>O-O-O|O-O)?\\s+(?<Single1>([KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)?)?\\s*(?<Castle2>O-O-O|O-O)?\\s*";
+		singlePattern = Pattern.compile(singleMovement);
+		String singleMovementCheck = "\\s*(?<Castle1>O-O-O|O-O)?\\s+(?<Single1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(<?Castle2>O-O-O|O-O)?\\s*";
+		singleContainingPattern = Pattern.compile(singleMovementCheck);
+		String containingCastle = ".*(O-O-O|O-O)[^O\\-].*";
+		castle = Pattern.compile(containingCastle);
+		String twoCastles = "([^O\\-]*(O-O-O|O-O)[^O\\-]*){2}\\s*";
+		twoCastlesFound = Pattern.compile(twoCastles);
 	}
 
 	public boolean isPlacement(String currentLine) {
@@ -52,6 +64,34 @@ public class DirectiveFinder {
 	}
 
 	public boolean containsCastle(String currentLine) {
-		return (currentLine.contains(" O-O-O ") || currentLine.contains(" O-O "));
+		Matcher castleM = castle.matcher(currentLine);
+		Matcher twoCast = twoCastlesFound.matcher(currentLine);
+		return (twoCast.find() || (containsSingleMovement(currentLine) && castleM.find()));
 	}
+
+	public boolean containsSingleMovement(String currentLine) {
+		Matcher single = singleContainingPattern.matcher(currentLine);
+		return single.find();
+	}
+
+	public ArrayList<String> getLineAction(String currentLine) {
+		ArrayList<String> movement = new ArrayList<String>();
+		Matcher single = singlePattern.matcher(currentLine);
+		single.find();
+		if (single.group("Castle1").isEmpty()) {
+			movement.add(single.group("Single1"));
+			movement.add(single.group("Castle2"));
+		}else if (single.group("Castle2").isEmpty()) {
+			movement.add(single.group("Castle1"));
+			movement.add(single.group("Single1"));
+		}else if (single.group("Single1").isEmpty()) {
+			movement.add(single.group("Castle1"));
+			movement.add(single.group("Castle2"));
+		}
+		return movement;
+	}
+	public boolean isCastle(String directive){
+		return directive.contains("O");
+	}
+	
 }

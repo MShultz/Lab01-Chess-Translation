@@ -8,7 +8,7 @@ public class OutputFormatter {
 
 	public String formatMovement(String movement, boolean isWhite) {
 		String piece = getPiece(movement.charAt(0));
-		String formatted = "Proceess [" + movement + "]: " +(isWhite ? "White" : "Black") + " moves " + piece + " at ";
+		String formatted = "Movement: [" + movement + "] " +(isWhite ? "White" : "Black") + " moves " + piece + " at ";
 		if (piece.equals("Pawn")) {
 			formatted += getMovement(movement, true);
 			formatted += getCapturingPiece(movement, true);
@@ -18,6 +18,9 @@ public class OutputFormatter {
 		}
 		formatted += getEnding(movement.charAt(movement.length() - 1));
 		return formatted;
+	}
+	public String formatCastle(String castle, boolean isWhite){
+		return (getColor(isWhite?'l':'d') + " castles " + (castle.trim().equals("O-O-O")? "Queen":"King") + " side.");
 	}
 
 	private String getPiece(char piece) {
