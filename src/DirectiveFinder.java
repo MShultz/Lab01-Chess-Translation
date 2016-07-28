@@ -12,12 +12,10 @@ public class DirectiveFinder {
 	}
 
 	private void initializePatterns() {
-		String placement = "[^KRNQBP]*(?<Pattern1>[KRNQBP][LlDd][a-h][1-8])\\s*(?<Pattern2>[KRNQBP][LlDd][a-h][1-8])";
+		String placement = "\\s*(?<Pattern1>[KRNQBP][ld][a-h][1-8])\\s*";
 		placementPattern = Pattern.compile(placement);
-		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?))";
+		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)";
 		movementPattern = Pattern.compile(movement);
-		String comment = "[^/]*(?<Comment1>//.*)*";
-		commentPattern = Pattern.compile(comment);
 	}
 
 	public boolean isPlacement(String currentLine) {
@@ -30,27 +28,23 @@ public class DirectiveFinder {
 		return movementMatcher.find();
 	}
 
-	public ArrayList<String> getPlacementDirective(String currentLine) {
+	public String getPlacementDirective(String currentLine) {
 		Matcher placementMatcher = placementPattern.matcher(currentLine);
-		ArrayList<String> placementDirectives = new ArrayList<String>();
-		placementDirectives.add(placementMatcher.group("Pattern1"));
-		if (placementMatcher.group("Pattern2") != null) {
-			placementDirectives.add(placementMatcher.group("Pattern2"));
-		}
-		return placementDirectives;
+		placementMatcher.find();
+		return placementMatcher.group("Pattern1");
 	}
 
 	public ArrayList<String> getMovementDirectives(String currentLine) {
 		Matcher movementMatcher = movementPattern.matcher(currentLine);
+		movementMatcher.find();
 		ArrayList<String> movementDirectives = new ArrayList<String>();
-		movementDirectives.add(movementMatcher.group("Pattern1"));
-		movementDirectives.add(movementMatcher.group("Pattern2"));
+		movementDirectives.add(movementMatcher.group("Movement1"));
+		movementDirectives.add(movementMatcher.group("Movement2"));
 		return movementDirectives;
 	}
 
 	public String removeComment(String currentLine) {
-		Matcher commentMatcher = commentPattern.matcher(currentLine);
-		return commentMatcher.replaceAll("");
+		return currentLine.substring(0, currentLine.indexOf('/'));
 	}
 
 	public boolean containsComment(String currentLine) {

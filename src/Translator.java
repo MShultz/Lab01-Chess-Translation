@@ -1,43 +1,56 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Translator {
+	File resultFile;
 	OutputFormatter format;
 	DirectiveFinder finder;
 	boolean movementBegun = false;
 	BufferedReader file = null;
 	BufferedWriter results = null;
+	FileWriter innerWriter = null;
 
 	public Translator(String fileName) {
 		initializeReader(fileName);
+		createFile();
 		initializeWriter();
+		writeToFile("Process: Files Initialized.");
 		format = new OutputFormatter();
 		finder = new DirectiveFinder();
 	}
 
 	public void translate() {
-		String currentLine = getCurrentLine();
-		if (finder.containsComment(currentLine)) {
-			currentLine = finder.removeComment(currentLine);
+		try {
+			while (file.ready()) {
+				String currentLine = getCurrentLine();
+				if (finder.containsComment(currentLine)) {
+					currentLine = finder.removeComment(currentLine);
+				}
+				if (currentLine.trim().length() > 0) {
+					if (finder.isPlacement(currentLine)) {
+						processPlacement(currentLine);
+					} else if (finder.isMovement(currentLine)) {
+						processMovement(currentLine);
+					} else if (finder.containsCastle(currentLine)) {
+						
+					} else {
+						writeToFile("Warning: Skipping line [" + currentLine + "] Invalid input.");
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		if (finder.isPlacement(currentLine)) {
-			processPlacement(currentLine);
-		}
-		else if(finder.isMovement(currentLine)){
-			
-		}
-
 	}
 
 	private void initializeReader(String fileName) {
@@ -51,12 +64,10 @@ public class Translator {
 	}
 
 	private void initializeWriter() {
-		String timeStamp = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
-		FileOutputStream outputStream;
 		try {
-			outputStream = new FileOutputStream("TranslationResults" + timeStamp + ".txt");
-			results = new BufferedWriter(new OutputStreamWriter(outputStream));
-		} catch (FileNotFoundException e) {
+			innerWriter = new FileWriter(resultFile);
+			results = new BufferedWriter(innerWriter);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -74,6 +85,8 @@ public class Translator {
 	private void writeToFile(String log) {
 		try {
 			results.write(log);
+			results.flush();
+			results.newLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -83,22 +96,39 @@ public class Translator {
 		if (movementBegun) {
 			writeToFile("Warning: Skipping [" + currentLine + "]. Movement has begun.");
 		} else {
-			ArrayList<String> placements = finder.getPlacementDirective(currentLine);
-			String placement1 = "Process: Adding [" + placements.get(0) + "] "
-					+ format.formatPlacement(placements.get(0));
+			String placement = finder.getPlacementDirective(currentLine);
+			String placement1 = "Process: Adding [" + placement + "] " + format.formatPlacement(placement);
 			writeToFile(placement1);
-			if (placements.get(1) != null) {
-				writeToFile(
-						"Warning: Skipping [ " + placements.get(1) + "]. There can only be one placement per line.");
-			}
 		}
 	}
-	
-	private void processMovement(String currentLine){
-		if (!movementBegun){
-			movementBegun = false;
+
+	private void processMovement(String currentLine) {
+		if (!movementBegun) {
+			movementBegun = true;
 		}
 		ArrayList<String> movements = finder.getMovementDirectives(currentLine);
-		
+		writeToFile(format.formatMovement(movements.get(0), true));
+		writeToFile(format.formatMovement(movements.get(1), false));
+	}
+
+	public void shutdown() {
+		try {
+			file.close();
+			innerWriter.close();
+			results.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void createFile() {
+		String timeStamp = new SimpleDateFormat("MM-dd_HH_mm_ss").format(new Date());
+		try {
+			resultFile = new File("src/TranslationResults" + timeStamp + ".log");
+			resultFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
