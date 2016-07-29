@@ -2,7 +2,7 @@
 public class OutputFormatter {
 	public String formatPlacement(String placement) {
 		String formatted =  getColor(placement.charAt(1)) + " "
-				+ getPiece(placement.charAt(0)) + " was placed at " + placement.substring(2, 4);
+				+ getPiece(placement.charAt(0)) + " was placed at " + placement.substring(2, 4) + ".";
 		return formatted;
 	}
 
@@ -10,17 +10,17 @@ public class OutputFormatter {
 		String piece = getPiece(movement.charAt(0));
 		String formatted = "Movement: [" + movement + "] " +(isWhite ? "White" : "Black") + " moves " + piece + " at ";
 		if (piece.equals("Pawn")) {
-			formatted += getMovement(movement, true);
+			formatted += getMovement(movement, true) + ".";
 			formatted += getCapturingPiece(movement, true);
 		} else {
-			formatted += getMovement(movement, false);
+			formatted += getMovement(movement, false) + ".";
 			formatted += getCapturingPiece(movement, false);
 		}
-		formatted += getEnding(movement.charAt(movement.length() - 1));
+		formatted +=  getEnding(movement.charAt(movement.length() - 1));
 		return formatted;
 	}
 	public String formatCastle(String castle, boolean isWhite){
-		return (getColor(isWhite?'l':'d') + " castles " + (castle.trim().equals("O-O-O")? "Queen":"King") + " side.");
+		return ("Movement: [" + castle + "] " + getColor(isWhite?'l':'d') + " castles " + (castle.trim().equals("O-O-O")? "Queen":"King") + " side.");
 	}
 
 	private String getPiece(char piece) {
@@ -56,7 +56,7 @@ public class OutputFormatter {
 	private String getEnding(char end) {
 		String ending = "";
 		if (end == '+' || end == '#') {
-			ending = (end == '+' ? ". Check!" : ". Checkmate!");
+			ending = (end == '+' ? " Check!" : " Checkmate!");
 		}
 		return ending;
 	}
@@ -65,7 +65,7 @@ public class OutputFormatter {
 		int captureAt = (isPawn ? 2 : 3);
 		String capturedString = "";
 		if (movement.charAt(captureAt) == 'x') {
-			capturedString = ", Capturing a piece. ";
+			capturedString = " They capture a piece. ";
 		}
 		return capturedString;
 	}
@@ -75,5 +75,17 @@ public class OutputFormatter {
 		int endingIndex = (isPawn ? 3 : 4);
 		return (movement.substring(startingIndex, startingIndex + 2) + " to "
 				+ movement.substring(endingIndex, endingIndex + 2));
+	}
+	public String getIncorrect(String currentLine){
+		String incorrect = "Warning: Skipping line [" + currentLine + "] Invalid ";
+		if(currentLine.contains("O")){
+			incorrect += " castling";
+		}else if(currentLine.contains("x") || currentLine.contains("-")){
+			incorrect += " movement";
+		}else{
+			incorrect += " placement";
+		}
+		incorrect += " directive.";
+		return incorrect;
 	}
 }

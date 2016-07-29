@@ -41,29 +41,14 @@ public class Translator {
 					} else if (finder.isMovement(currentLine)) {
 						processMovement(currentLine);
 					} else if (finder.containsCastle(currentLine)) {
-						ArrayList<String> lineAction = finder.getLineAction(currentLine);
-						if(finder.containsSingleMovement(currentLine)){	
-							if(lineAction.size() == 2){
-								if(finder.containsCastle(lineAction.get(0))){
-									writeToFile(format.formatCastle(lineAction.get(0), true));
-									if(finder.containsCastle(lineAction.get(1))){
-										writeToFile(format.formatCastle(lineAction.get(1), false));
-									}else{
-										writeToFile(format.formatMovement(lineAction.get(1), false));
-									}
-								}
-								
-							}
-						}else{
-							writeToFile(format.formatCastle(lineAction.get(0), true));
-							writeToFile(format.formatCastle(lineAction.get(1), false));
-						}
+						processCastling(currentLine);
 						
 					} else {
-						writeToFile("Warning: Skipping line [" + currentLine + "] Invalid input.");
+						writeToFile(format.getIncorrect(currentLine));
 					}
 				}
 			}
+			shutdown();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -126,12 +111,33 @@ public class Translator {
 		writeToFile(format.formatMovement(movements.get(0), true));
 		writeToFile(format.formatMovement(movements.get(1), false));
 	}
+	private void processCastling(String currentLine){
+		ArrayList<String> lineAction = finder.getLineAction(currentLine);
+		if(finder.containsSingleMovement(currentLine)){	
+			if(lineAction.size() == 2){
+				if(finder.isCastle(lineAction.get(0))){
+					writeToFile(format.formatCastle(lineAction.get(0), true));
+				}else{
+					writeToFile(format.formatMovement(lineAction.get(0), true));
+				}
+				if(finder.isCastle(lineAction.get(1))){
+					writeToFile(format.formatCastle(lineAction.get(1), false));
+				}else{
+					writeToFile(format.formatMovement(lineAction.get(1), false));
+				}	
+			}
+		}else{
+			writeToFile(format.formatCastle(lineAction.get(0), true));
+			writeToFile(format.formatCastle(lineAction.get(1), false));
+		}
+	}
 
 	public void shutdown() {
 		try {
+			writeToFile("Process: Closing Files.");
 			file.close();
-			innerWriter.close();
 			results.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

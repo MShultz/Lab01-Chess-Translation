@@ -6,10 +6,11 @@ public class DirectiveFinder {
 	Pattern placementPattern;
 	Pattern commentPattern;
 	Pattern movementPattern;
-	Pattern singlePattern;
+	Pattern castlingPattern;
 	Pattern singleContainingPattern;
 	Pattern castle;
 	Pattern twoCastlesFound;
+	Pattern onlyOne;
 
 	public DirectiveFinder() {
 		initializePatterns();
@@ -20,12 +21,12 @@ public class DirectiveFinder {
 		placementPattern = Pattern.compile(placement);
 		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)";
 		movementPattern = Pattern.compile(movement);
-		String singleMovement = "\\s*(?<Castle1>O-O-O|O-O)?\\s+(?<Single1>([KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)?)?\\s*(?<Castle2>O-O-O|O-O)?\\s*";
-		singlePattern = Pattern.compile(singleMovement);
-		String singleMovementCheck = "\\s*(?<Castle1>O-O-O|O-O)?\\s+(?<Single1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(<?Castle2>O-O-O|O-O)?\\s*";
-		singleContainingPattern = Pattern.compile(singleMovementCheck);
-		String containingCastle = ".*(O-O-O|O-O)[^O\\-].*";
+		String lineMovement = "\\s*(?<Castle1>O-O-O|O-O)?\\s*(?<Single1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#+]?)?\\s*(?<Castle2>O-O-O|O-O)?\\s*";
+		castlingPattern = Pattern.compile(lineMovement);
+		String containingCastle = "(O-O-O|O-O)";
 		castle = Pattern.compile(containingCastle);
+		String onlyOneMove = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s*";
+		onlyOne = Pattern.compile(onlyOneMove);
 		String twoCastles = "([^O\\-]*(O-O-O|O-O)[^O\\-]*){2}\\s*";
 		twoCastlesFound = Pattern.compile(twoCastles);
 	}
@@ -70,21 +71,21 @@ public class DirectiveFinder {
 	}
 
 	public boolean containsSingleMovement(String currentLine) {
-		Matcher single = singleContainingPattern.matcher(currentLine);
+		Matcher single = onlyOne.matcher(currentLine);
 		return single.find();
 	}
 
 	public ArrayList<String> getLineAction(String currentLine) {
 		ArrayList<String> movement = new ArrayList<String>();
-		Matcher single = singlePattern.matcher(currentLine);
+		Matcher single = castlingPattern.matcher(currentLine);
 		single.find();
-		if (single.group("Castle1").isEmpty()) {
+		if (single.group("Castle1") == null || single.group("Castle1").isEmpty()) {
 			movement.add(single.group("Single1"));
 			movement.add(single.group("Castle2"));
-		}else if (single.group("Castle2").isEmpty()) {
+		}else if (single.group("Castle2") == null || single.group("Castle2").isEmpty()) {
 			movement.add(single.group("Castle1"));
 			movement.add(single.group("Single1"));
-		}else if (single.group("Single1").isEmpty()) {
+		}else if (single.group("Single1") == null || single.group("Single1").isEmpty()) {
 			movement.add(single.group("Castle1"));
 			movement.add(single.group("Castle2"));
 		}
@@ -93,5 +94,6 @@ public class DirectiveFinder {
 	public boolean isCastle(String directive){
 		return directive.contains("O");
 	}
+
 	
 }
