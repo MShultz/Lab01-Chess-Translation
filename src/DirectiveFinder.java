@@ -17,9 +17,9 @@ public class DirectiveFinder {
 	}
 
 	private void initializePatterns() {
-		String placement = "\\s*(?<Pattern1>[KRNQBP][ld][a-h][1-8])\\s*";
+		String placement = "^(?<Pattern1>[KRNQBP][ld][a-h][1-8])\\s*$";
 		placementPattern = Pattern.compile(placement);
-		String movement = "[^KRNQBPa-h]*(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)";
+		String movement = "^(?<Movement1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)\\s+(?<Movement2>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#\\+]?)$";
 		movementPattern = Pattern.compile(movement);
 		String lineMovement = "\\s*(?<Castle1>O-O-O|O-O)?\\s*(?<Single1>[KRNQBP]?[a-h][1-8][\\-x][a-h][1-8][#+]?)?\\s*(?<Castle2>O-O-O|O-O)?\\s*";
 		castlingPattern = Pattern.compile(lineMovement);

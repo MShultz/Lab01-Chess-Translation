@@ -23,6 +23,7 @@ public class Translator {
 		initializeReader(fileName);
 		createFile();
 		initializeWriter();
+		writeToFile("Process: Sucessfully opened file [" + fileName + "]");
 		writeToFile("Process: Files Initialized.");
 		format = new OutputFormatter();
 		finder = new DirectiveFinder();
@@ -31,9 +32,9 @@ public class Translator {
 	public void translate() {
 		try {
 			while (file.ready()) {
-				String currentLine = getCurrentLine();
+				String currentLine = getCurrentLine().trim();
 				if (finder.containsComment(currentLine)) {
-					currentLine = finder.removeComment(currentLine);
+					currentLine = finder.removeComment(currentLine).trim();
 				}
 				if (currentLine.trim().length() > 0) {
 					if (finder.isPlacement(currentLine)) {
