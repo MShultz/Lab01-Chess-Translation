@@ -42,6 +42,7 @@
 // Now move the pieces
 
      f2-f4		e7-e5     // test comment
+	 f2-f4		e7-e5 O-O-O
      f4xe5		d7-d6
      e5xd6		Bf8xd6
      g2-g3		Qd8-g5

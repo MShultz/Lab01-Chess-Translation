@@ -43,7 +43,7 @@ public class Translator {
 						processMovement(currentLine);
 					} else if (finder.containsCastle(currentLine)) {
 						processCastling(currentLine);
-						
+
 					} else {
 						writeToFile(format.getIncorrect(currentLine));
 					}
@@ -112,24 +112,29 @@ public class Translator {
 		writeToFile(format.formatMovement(movements.get(0), true));
 		writeToFile(format.formatMovement(movements.get(1), false));
 	}
-	private void processCastling(String currentLine){
+
+	private void processCastling(String currentLine) {
 		ArrayList<String> lineAction = finder.getLineAction(currentLine);
-		if(finder.containsSingleMovement(currentLine)){	
-			if(lineAction.size() == 2){
-				if(finder.isCastle(lineAction.get(0))){
-					writeToFile(format.formatCastle(lineAction.get(0), true));
-				}else{
-					writeToFile(format.formatMovement(lineAction.get(0), true));
+		if (lineAction.get(0) != null && lineAction.get(1) != null) {
+			if (finder.containsSingleMovement(currentLine)) {
+				if (lineAction.size() == 2) {
+					if (finder.isCastle(lineAction.get(0))) {
+						writeToFile(format.formatCastle(lineAction.get(0), true));
+					} else {
+						writeToFile(format.formatMovement(lineAction.get(0), true));
+					}
+					if (finder.isCastle(lineAction.get(1))) {
+						writeToFile(format.formatCastle(lineAction.get(1), false));
+					} else {
+						writeToFile(format.formatMovement(lineAction.get(1), false));
+					}
 				}
-				if(finder.isCastle(lineAction.get(1))){
-					writeToFile(format.formatCastle(lineAction.get(1), false));
-				}else{
-					writeToFile(format.formatMovement(lineAction.get(1), false));
-				}	
+			} else {
+				writeToFile(format.formatCastle(lineAction.get(0), true));
+				writeToFile(format.formatCastle(lineAction.get(1), false));
 			}
 		}else{
-			writeToFile(format.formatCastle(lineAction.get(0), true));
-			writeToFile(format.formatCastle(lineAction.get(1), false));
+			writeToFile(format.getIncorrect(currentLine));
 		}
 	}
 
@@ -138,7 +143,7 @@ public class Translator {
 			writeToFile("Process: Closing Files.");
 			file.close();
 			results.close();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
